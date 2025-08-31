@@ -1,0 +1,287 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>☄️ Weather App</title>
+
+
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<!-- ✅ Added id="top" -->
+<body id="top">
+  <header>
+    <div class="header-left">
+      <img src="https://openweathermap.org/themes/openweathermap/assets/vendor/owm/img/icons/logo_60x60.png" alt="Logo">
+      WeatherApp
+    </div>
+    <div class="nav-right">
+      <!-- ✅ Home Button Added -->
+      <a href="#top"><button>Home</button></a>
+     <!-- ✅ History Button -->
+<button onclick="toggleHistory()">History</button>
+
+      <button>Sign Up</button>
+      <a href="#about-section"><button>About</button></a>
+    </div>
+  </header>
+
+<div class="banner-image" style="background-image: url('{% static 'app1/images/django_img.jpg' %}');">
+  <div class="hero-container">
+    <h1>Get Accurate Weather Anywhere, Anytime</h1>
+  </div>
+</div>
+
+
+
+  <div class="main-section">
+    <div class="left-content">
+      <div class="weather-box">
+        <form method="post" class="search-form">
+          {% csrf_token %}
+          <div class="search-input-wrapper">
+            <input type="text" name="city" placeholder="Search city..." required>
+          </div>
+          <button type="submit">Search</button>
+        </form>
+      </div>
+
+      {% if weather_data %}
+      <div class="weather-box">
+        {% if weather_data.error %}
+          <p class="error">{{ weather_data.error }}</p>
+        {% else %}
+          <h2>{{ weather_data.city }}</h2>
+          <img src="http://openweathermap.org/img/wn/{{ weather_data.icon }}@2x.png" alt="Weather Icon">
+          <p><strong>Description:</strong> {{ weather_data.description }}</p>
+          <p><strong>Temperature:</strong> {{ weather_data.temperature }}°C</p>
+          <p><strong>Feels Like:</strong> {{ weather_data.feels_like }}°C</p>
+          <p><strong>Min:</strong> {{ weather_data.temp_min }}°C</p>
+          <p><strong>Max:</strong> {{ weather_data.temp_max }}°C</p>
+          <p><strong>Humidity:</strong> {{ weather_data.humidity }}%</p>
+          <p><strong>Pressure:</strong> {{ weather_data.pressure }} hPa</p>
+          <p><strong>Visibility:</strong> {{ weather_data.visibility }} meters</p>
+          <p><strong>Wind Speed:</strong> {{ weather_data.wind_speed }} m/s</p>
+          <p><strong>Wind Direction:</strong> {{ weather_data.wind_deg }}°</p>
+          <p><strong>Sunrise:</strong> {{ weather_data.sunrise }}</p>
+          <p><strong>Sunset:</strong> {{ weather_data.sunset }}</p>
+        {% endif %}
+      </div>
+
+      {% if hourly_data %}
+      <div class="weather-box">
+        <h2>Hourly Temperature</h2>
+        <canvas id="hourlyChart" width="100%" height="57"></canvas>
+      </div>
+      {% endif %}
+
+            <div class="compare-float">
+        <a href="https://openweathermap.org/find?q={{ weather_data.city|urlencode }}" target="_blank" class="compare-btn">
+          Compare with OpenWeather Site 🌐
+        </a>
+      </div>
+
+      {% endif %}
+    </div>
+
+    <div class="right-wrapper">
+      {% if forecast_data %}
+      <div class="weather-box" style="max-height: 500px; overflow-y: auto;">
+        <h2>5-Day Forecast</h2>
+        {% for forecast in forecast_data %}
+        <div style="border-bottom: 1px solid #ccc; padding: 10px 0;">
+          <p><strong>{{ forecast.date }}</strong></p>
+          <img src="http://openweathermap.org/img/wn/{{ forecast.icon }}@2x.png" alt="Forecast Icon">
+          <!--<p><strong>Temp:</strong> {{ forecast.temp }}°C</p> -->
+          <p><strong>Min:</strong> {{ forecast.temp_min }}°C</p>
+          <p><strong>Max:</strong> {{ forecast.temp_max }}°C</p>
+          <p><strong>Avg:</strong> {{ forecast.temp_avg }}°C</p>
+          <p><strong>Description:</strong> {{ forecast.description }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if weather_data %}
+      <div class="weather-box">
+        <h2>Map Location</h2>
+        <div id="map"></div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="weather-icon-slider">
+    <div class="icon-track">
+      <img src="{% static 'app1/images/clouds-and-sun.png' %}" alt="Clear">
+      <img src="{% static 'app1/images/cloudy-day.png' %}" alt="Clouds">
+      <img src="{% static 'app1/images/cloudy-day (1).png' %}" alt="Rain">
+      <img src="{% static 'app1/images/heavy-rain.png' %}" alt="heavyRain">
+      <img src="{% static 'app1/images/humidity.png' %}" alt="Humidity">
+      <img src="{% static 'app1/images/rainy-day.png' %}" alt="Rain">
+      <img src="{% static 'app1/images/snow.png' %}" alt="Snow">
+      <img src="{% static 'app1/images/thunderstorm.png' %}" alt="Thunderstorm">
+      <img src="{% static 'app1/images/weather.png' %}" alt="Weather">
+
+      <img src="{% static 'app1/images/clouds-and-sun.png' %}" alt="Clear">
+      <img src="{% static 'app1/images/cloudy-day.png' %}" alt="Clouds">
+      <img src="{% static 'app1/images/cloudy-day (1).png' %}" alt="Rain">
+      <img src="{% static 'app1/images/heavy-rain.png' %}" alt="HeavyRain">
+      <img src="{% static 'app1/images/humidity.png' %}" alt="Humadity">
+      <img src="{% static 'app1/images/rainy-day.png' %}" alt="Rain">
+      <img src="{% static 'app1/images/snow.png' %}" alt="Snow">
+      <img src="{% static 'app1/images/thunderstorm.png' %}" alt="Thunder">
+      <img src="{% static 'app1/images/weather.png' %}" alt="Weather">
+    </div>
+  </div>
+
+  <section id="about-section" class="about-section">
+    <div class="split-layout">
+      <div class="about-left">
+        <h2>About This App</h2>
+        <p>
+          Welcome to <strong>WeatherApp</strong> — your all-in-one weather dashboard providing fast, accurate, and beautiful forecasts 🌍.
+          Powered by the <a href="https://openweathermap.org/" target="_blank" style="color:#1e81b0;text-decoration:underline;">OpenWeatherMap API</a>,
+          it delivers real-time weather data for any city or your current location.
+        </p>
+        <ul>
+          <li>🔍 Search cities instantly</li>
+          <li>🌤️ Get real-time weather info (temp, wind, humidity, visibility)</li>
+          <li>📅 See a 5-day weather forecast with icons</li>
+          <li>📊 Explore 12-hour temperature trend in an interactive chart</li>
+          <li>🗺️ View location on a live map</li>
+          <li>📍 Detect weather using your current location automatically</li>
+          <li>🌐 Compare with official OpenWeather site</li>
+        </ul>
+        <p>
+          Built using 💻 Django (Python framework), Chart.js (Graphs), and Leaflet.js (Maps) — this app is responsive, modern, and optimized for all screen sizes 📱💨.
+        </p>
+      </div>
+      <div class="about-right">
+        <img src="{% static 'app1/images/web_img1.jpg' %}"
+             alt="Analytics Dashboard Illustration"
+             class="about-image" />
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- 🔹 Search History Modal -->
+<div id="historyModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="toggleHistory()">&times;</span>
+    <h2>Search History</h2>
+    <ul>
+      {% for city in search_history %}
+        <li>{{ city }}</li>
+      {% empty %}
+        <li>No search history yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    window.onload = function () {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success, error);
+      }
+      function success(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const currentURL = new URL(window.location.href);
+        const params = currentURL.searchParams;
+        if (!params.get("lat") && !params.get("lon")) {
+          params.set("lat", latitude);
+          params.set("lon", longitude);
+          currentURL.search = params.toString();
+          window.location.href = currentURL.toString();
+        }
+      }
+      function error(err) {
+        console.log("Location error:", err);
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+      {% if weather_data %}
+      const lat = {{ weather_data.lat }};
+      const lon = {{ weather_data.lon }};
+      const map = L.map('map').setView([lat, lon], 10);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+      L.marker([lat, lon]).addTo(map).bindPopup("{{ weather_data.city }}").openPopup();
+      {% endif %}
+
+      {% if hourly_data %}
+      const hourlyLabels = [{% for item in hourly_data %}"{{ item.time }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+      const hourlyTemps = [{% for item in hourly_data %}{{ item.temp }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+      const ctx = document.getElementById('hourlyChart')?.getContext('2d');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: hourlyLabels,
+            datasets: [{
+              label: 'Temperature (°C)',
+              data: hourlyTemps,
+              backgroundColor: 'rgba(30, 129, 176, 0.2)',
+              borderColor: '#1e81b0',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3,
+              pointBackgroundColor: '#fff',
+              pointBorderColor: '#1e81b0'
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                  color: '#333',
+                  font: {
+                    size: 14
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#333' }
+              },
+              y: {
+                beginAtZero: false,
+                ticks: { color: '#333' }
+              }
+            }
+          }
+        });
+      }
+      {% endif %}
+    });
+
+
+
+      function toggleHistory() {
+    const modal = document.getElementById('historyModal');
+    modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+  }
+  </script>
+</body>
+</html>
