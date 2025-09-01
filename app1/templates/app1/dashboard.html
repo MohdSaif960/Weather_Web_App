@@ -49,6 +49,12 @@
           </div>
           <button type="submit">Search</button>
         </form>
+        {% if error_message %}
+    <p style="color: red; font-weight: bold; margin-top: 10px;" align="center">
+        {{ error_message }}
+    </p>
+{% endif %}
+
       </div>
 
       {% if weather_data %}
