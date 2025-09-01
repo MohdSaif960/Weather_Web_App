@@ -5,11 +5,11 @@ from datetime import datetime
 from collections import defaultdict
 from statistics import mean
 
-
 def dashboard(request):
     weather_data = None
     forecast_data = None
     hourly_data = []
+    error_message = None  # <-- Added this line
     api_key = 'b58b35d5841969ff4987d7e58ed9cbad'
     form = CityForm()
 
@@ -37,6 +37,12 @@ def dashboard(request):
 
             current_data = requests.get(current_url).json()
             forecast_json = requests.get(forecast_url).json()
+
+            # 🔹 If city not found, set error message
+            if current_data.get('cod') == '404':
+                error_message = "City not found. Please try again."
+                current_data = {}
+                forecast_json = {}
 
     # 🔸 Handle Geolocation via GET
     elif request.method == 'GET' and request.GET.get('lat') and request.GET.get('lon'):
@@ -109,5 +115,6 @@ def dashboard(request):
         'weather_data': weather_data,
         'forecast_data': forecast_data,
         'hourly_data': hourly_data,
-        'search_history': request.session.get('search_history', [])
+        'search_history': request.session.get('search_history', []),
+        'error_message': error_message  # <-- Added this line
     })
